@@ -9,62 +9,70 @@
 </style>
 <div class="row">
 	<div class="col-md-12">
-	<?php if (isset($_GET["beasiswa"])) {
-		$sqlKriteria = "";
-		$namaKriteria = [];
-		$queryKriteria = $connection->query("SELECT a.kd_kriteria, a.nama_ktra FROM kriteria a JOIN pembobotan b USING(kd_kriteria) WHERE b.kd_beasiswa=$_GET[beasiswa]");
-		while ($kr = $queryKriteria->fetch_assoc()) {
-			$sqlKriteria .= "SUM(
-				IF(
-					c.kd_kriteria=".$kr["kd_kriteria"].",
-					IF(c.sifat='max', nilai.nilai/c.normalization, c.normalization/nilai.nilai), 0
-				)
-			) AS ".strtolower(str_replace(" ", "_", $kr["nama_ktra"])).",";
-			$namaKriteria[] = strtolower(str_replace(" ", "_", $kr["nama_ktra"]));
-		}
-		$sql = "SELECT
-			(SELECT nama_mhs FROM mahasiswa WHERE nim=mhs.nim) AS nama,
-			(SELECT nim FROM mahasiswa WHERE nim=mhs.nim) AS nim,
-			(SELECT jurusan FROM mahasiswa WHERE nim=mhs.nim) AS jurusan,
-			(SELECT tahun_mengajukan FROM mahasiswa WHERE nim=mhs.nim) AS tahun,
-			$sqlKriteria
-			SUM(
-				IF(
-						c.sifat = 'max',
-						nilai.nilai / c.normalization,
-						c.normalization / nilai.nilai
-				) * c.bobot
-			) AS rangking
-		FROM
-			nilai
-			JOIN mahasiswa mhs USING(nim)
-			JOIN (
-				SELECT
-						nilai.kd_kriteria AS kd_kriteria,
-						kriteria.sifat AS sifat,
-						(
-							SELECT bobot_model FROM pembagian_nilai WHERE kd_kriteria=kriteria.kd_kriteria AND kd_beasiswa=beasiswa.kd_beasiswa
-						) AS bobot,
-						ROUND(
-							IF(kriteria.sifat='max', MAX(nilai.nilai), MIN(nilai.nilai)), 1
-						) AS normalization
-					FROM nilai
-					JOIN kriteria USING(kd_kriteria)
-					JOIN beasiswa ON kriteria.kd_beasiswa=beasiswa.kd_beasiswa
-					WHERE beasiswa.kd_beasiswa=$_GET[beasiswa]
-				GROUP BY nilai.kd_kriteria
-			) c USING(kd_kriteria)
-		WHERE kd_beasiswa=$_GET[beasiswa]
-		GROUP BY nilai.nim
-		ORDER BY rangking DESC"; 
-		echo $sql;?>
+	<?php 
+
+   		//jika klik menu perhitungan > (nama_beasiswa)
+		if (isset($_GET["beasiswa"])) {		
+			$sqlKriteria = "";
+			$namaKriteria = [];
+			$queryKriteria = $connection->query("SELECT a.kd_kriteria, a.nama_ktra FROM kriteria a JOIN pembobotan b USING(kd_kriteria) WHERE b.kd_beasiswa=$_GET[beasiswa]");
+			while ($kr = $queryKriteria->fetch_assoc()) {
+				$sqlKriteria .= "SUM(
+					IF(
+						c.kd_kriteria=".$kr["kd_kriteria"].",
+						IF(c.sifat='max', nilai.nilai/c.normalization, c.normalization/nilai.nilai), 0
+					)
+				) AS ".strtolower(str_replace(" ", "_", $kr["nama_ktra"])).",";
+				$namaKriteria[] = strtolower(str_replace(" ", "_", $kr["nama_ktra"]));
+			}
+			$sql = "SELECT
+				(SELECT nama_mhs FROM mahasiswa WHERE nim=mhs.nim) AS nama,
+				(SELECT nim FROM mahasiswa WHERE nim=mhs.nim) AS nim,
+				(SELECT jurusan FROM mahasiswa WHERE nim=mhs.nim) AS jurusan,
+				(SELECT tahun_mengajukan FROM mahasiswa WHERE nim=mhs.nim AND tahun_mengajukan = 2020) AS tahun,
+				$sqlKriteria
+				SUM(
+					IF(
+							c.sifat = 'max',
+							nilai.nilai / c.normalization,
+							c.normalization / nilai.nilai
+					) * c.bobot
+				) AS rangking
+			FROM
+				nilai
+				RIGHT JOIN mahasiswa mhs USING(nim)
+				JOIN (
+					SELECT
+							nilai.kd_kriteria AS kd_kriteria,
+							kriteria.sifat AS sifat,
+							(
+								SELECT bobot_model FROM pembagian_nilai WHERE kd_kriteria=kriteria.kd_kriteria AND kd_beasiswa=beasiswa.kd_beasiswa
+							) AS bobot,
+							ROUND(
+								IF(kriteria.sifat='max', MAX(nilai.nilai), MIN(nilai.nilai)), 1
+							) AS normalization
+						FROM nilai
+						JOIN kriteria USING(kd_kriteria)
+						JOIN beasiswa ON kriteria.kd_beasiswa=beasiswa.kd_beasiswa
+						WHERE beasiswa.kd_beasiswa=$_GET[beasiswa]
+					GROUP BY nilai.kd_kriteria
+				) c USING(kd_kriteria)
+			WHERE kd_beasiswa=$_GET[beasiswa]
+			GROUP BY nilai.nim
+			ORDER BY rangking DESC"; 
+
+			//tes code
+			echo $sql;
+	?>
 	  <div class="panel panel-info">
 	      <div class="panel-heading"><img class="kiri" src ="LOGO.png"><h3 class="text-center"><h2 class="text-center">
 	      	<?php 
 	      		$query = $connection->query("SELECT * FROM beasiswa WHERE kd_beasiswa=$_GET[beasiswa]"); 
 	      		while ($data = $query->fetch_assoc()) {
 	      			$kuota = $data["kuota"];
-	      			echo $data["nama_bsw"];
+					  
+					// menampilkan judul nama beasiswa
+					echo $data["nama_bsw"];
 	      		} 
 	      		 // $query->fetch_assoc()["nama"]; 
 
