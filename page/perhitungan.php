@@ -54,10 +54,11 @@
 						FROM nilai
 						JOIN kriteria USING(kd_kriteria)
 						JOIN beasiswa ON kriteria.kd_beasiswa=beasiswa.kd_beasiswa
+						LEFT JOIN mahasiswa ON nilai.nim = mahasiswa.nim
 						WHERE beasiswa.kd_beasiswa=$_GET[beasiswa]
 					GROUP BY nilai.kd_kriteria
 				) c USING(kd_kriteria)
-			WHERE kd_beasiswa=$_GET[beasiswa]
+			WHERE kd_beasiswa=$_GET[beasiswa] AND tahun_mengajukan = 2020
 			GROUP BY nilai.nim
 			ORDER BY rangking DESC"; 
 
