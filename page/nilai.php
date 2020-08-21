@@ -4,9 +4,9 @@ $update = (isset($_GET['action']) AND $_GET['action'] == 'update') ? true : fals
 //jika tombol edit diklik
 if ($update) {
 	// $sql_string = "SELECT * FROM nilai JOIN penilaian USING(kd_kriteria) WHERE kd_nilai='$_GET[key]'";
-	$sql_string = "SELECT * FROM nilai JOIN pembobotan USING(kd_kriteria) WHERE kd_nilai='$_GET[key]' AND nilai.nilai = pembobotan.bobot";
+	$sql_string = "SELECT * FROM nilai JOIN pembobotan USING(kd_kriteria) WHERE kd_nilai='$_GET[key]' AND nilai.nilai = pembobotan.bobot_nilai";
 	$sql = $connection->query($sql_string);
-	// echo $sql_string."<br>";
+	echo $sql_string."<br>";
 	$row = $sql->fetch_assoc();
 	// echo $row["kd_penilaian"];
 }
