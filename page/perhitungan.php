@@ -25,85 +25,7 @@
 				$namaKriteria[] = strtolower(str_replace(" ", "_", $kr["nama_ktra"]));
 			}
 				
-			//jika ada request method (pilih tahun)
-			if ($_SERVER["REQUEST_METHOD"] == "POST"){
-				$sql = "SELECT
-					(SELECT nama_mhs FROM mahasiswa WHERE nim=mhs.nim) AS nama,
-					(SELECT nim FROM mahasiswa WHERE nim=mhs.nim) AS nim,
-					(SELECT jurusan FROM mahasiswa WHERE nim=mhs.nim) AS jurusan,
-					(SELECT tahun_mengajukan FROM mahasiswa WHERE nim=mhs.nim AND tahun_mengajukan = 2020) AS tahun,
-					$sqlKriteria
-					SUM(
-						IF(
-								c.sifat = 'max',
-								nilai.nilai / c.normalization,
-								c.normalization / nilai.nilai
-						) * c.bobot
-					) AS rangking
-				FROM
-					nilai
-					RIGHT JOIN mahasiswa mhs USING(nim)
-					JOIN (
-						SELECT
-								nilai.kd_kriteria AS kd_kriteria,
-								kriteria.sifat AS sifat,
-								(
-									SELECT bobot_model FROM pembagian_nilai WHERE kd_kriteria=kriteria.kd_kriteria AND kd_beasiswa=beasiswa.kd_beasiswa
-								) AS bobot,
-								ROUND(
-									IF(kriteria.sifat='max', MAX(nilai.nilai), MIN(nilai.nilai)), 1
-								) AS normalization
-							FROM nilai
-							JOIN kriteria USING(kd_kriteria)
-							JOIN beasiswa ON kriteria.kd_beasiswa=beasiswa.kd_beasiswa
-							LEFT JOIN mahasiswa ON nilai.nim = mahasiswa.nim
-							WHERE beasiswa.kd_beasiswa=$_GET[beasiswa]
-						GROUP BY nilai.kd_kriteria
-					) c USING(kd_kriteria)
-				WHERE kd_beasiswa=$_GET[beasiswa] AND tahun_mengajukan = '$_POST[tahun]'
-				GROUP BY nilai.nim
-				ORDER BY rangking DESC"; 
-			}else {
-				//jika tidak ada request method (pilih tahun)
-				$sql = "SELECT
-					(SELECT nama_mhs FROM mahasiswa WHERE nim=mhs.nim) AS nama,
-					(SELECT nim FROM mahasiswa WHERE nim=mhs.nim) AS nim,
-					(SELECT jurusan FROM mahasiswa WHERE nim=mhs.nim) AS jurusan,
-					(SELECT tahun_mengajukan FROM mahasiswa WHERE nim=mhs.nim AND tahun_mengajukan = 2020) AS tahun,
-					$sqlKriteria
-					SUM(
-						IF(
-								c.sifat = 'max',
-								nilai.nilai / c.normalization,
-								c.normalization / nilai.nilai
-						) * c.bobot
-					) AS rangking
-				FROM
-					nilai
-					RIGHT JOIN mahasiswa mhs USING(nim)
-					JOIN (
-						SELECT
-								nilai.kd_kriteria AS kd_kriteria,
-								kriteria.sifat AS sifat,
-								(
-									SELECT bobot_model FROM pembagian_nilai WHERE kd_kriteria=kriteria.kd_kriteria AND kd_beasiswa=beasiswa.kd_beasiswa
-								) AS bobot,
-								ROUND(
-									IF(kriteria.sifat='max', MAX(nilai.nilai), MIN(nilai.nilai)), 1
-								) AS normalization
-							FROM nilai
-							JOIN kriteria USING(kd_kriteria)
-							JOIN beasiswa ON kriteria.kd_beasiswa=beasiswa.kd_beasiswa
-							LEFT JOIN mahasiswa ON nilai.nim = mahasiswa.nim
-							WHERE beasiswa.kd_beasiswa=$_GET[beasiswa]
-						GROUP BY nilai.kd_kriteria
-					) c USING(kd_kriteria)
-				WHERE kd_beasiswa=$_GET[beasiswa] AND tahun_mengajukan = NULL
-				GROUP BY nilai.nim
-				ORDER BY rangking DESC"; 
-			}
-			//tes code
-			// echo $sql;
+			
 		
 	?>
 	  <div class="panel panel-info">
@@ -143,6 +65,46 @@
 					</select>
 					<button type="submit" class="btn btn-primary">Tampilkan</button>
 				</form><br>
+			<?php
+				//jika ada request method (pilih tahun)
+				if ($_SERVER["REQUEST_METHOD"] == "POST"){
+					$sql = "SELECT
+						(SELECT nama_mhs FROM mahasiswa WHERE nim=mhs.nim) AS nama,
+						(SELECT nim FROM mahasiswa WHERE nim=mhs.nim) AS nim,
+						(SELECT jurusan FROM mahasiswa WHERE nim=mhs.nim) AS jurusan,
+						(SELECT tahun_mengajukan FROM mahasiswa WHERE nim=mhs.nim AND tahun_mengajukan = 2020) AS tahun,
+						$sqlKriteria
+						SUM(
+							IF(
+									c.sifat = 'max',
+									nilai.nilai / c.normalization,
+									c.normalization / nilai.nilai
+							) * c.bobot
+						) AS rangking
+					FROM
+						nilai
+						RIGHT JOIN mahasiswa mhs USING(nim)
+						JOIN (
+							SELECT
+									nilai.kd_kriteria AS kd_kriteria,
+									kriteria.sifat AS sifat,
+									(
+										SELECT bobot_model FROM pembagian_nilai WHERE kd_kriteria=kriteria.kd_kriteria AND kd_beasiswa=beasiswa.kd_beasiswa
+									) AS bobot,
+									ROUND(
+										IF(kriteria.sifat='max', MAX(nilai.nilai), MIN(nilai.nilai)), 1
+									) AS normalization
+								FROM nilai
+								JOIN kriteria USING(kd_kriteria)
+								JOIN beasiswa ON kriteria.kd_beasiswa=beasiswa.kd_beasiswa
+								LEFT JOIN mahasiswa ON nilai.nim = mahasiswa.nim
+								WHERE beasiswa.kd_beasiswa=$_GET[beasiswa]
+							GROUP BY nilai.kd_kriteria
+						) c USING(kd_kriteria)
+					WHERE kd_beasiswa=$_GET[beasiswa] AND tahun_mengajukan = '$_POST[tahun]'
+					GROUP BY nilai.nim
+					ORDER BY rangking DESC"; 
+			?>
 	          <table class="table table-condensed table-hover">
 	              <thead>
 	                  <tr>
@@ -211,6 +173,12 @@
 						$x++; 
 						$prev_nilai = $rangking; 
 						endwhile;
+						
+				}else {
+					//jika tidak ada request method (pilih tahun)
+				}
+				//tes code
+				// echo $sql;
 					?>
 	              </tbody>
 	          </table>
