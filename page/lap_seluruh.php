@@ -57,6 +57,11 @@
 						<?php $no = 1; ?>
 					<?php
 						$q = $connection->query("SELECT b.kd_beasiswa, b.nama_bsw, h.nilai, h.status, m.nama_mhs AS mahasiswa, m.nim, (SELECT MAX(nilai) FROM hasil WHERE nim=h.nim) AS nilai_max FROM mahasiswa m JOIN hasil h ON m.nim=h.nim JOIN beasiswa b ON b.kd_beasiswa=h.kd_beasiswa WHERE m.tahun_mengajukan='$_POST[tahun]' ORDER BY mahasiswa");
+
+						// tes code //
+						echo "SELECT b.kd_beasiswa, b.nama_bsw, h.nilai, h.status, m.nama_mhs AS mahasiswa, m.nim, (SELECT MAX(nilai) FROM hasil WHERE nim=h.nim) AS nilai_max FROM mahasiswa m JOIN hasil h ON m.nim=h.nim JOIN beasiswa b ON b.kd_beasiswa=h.kd_beasiswa WHERE m.tahun_mengajukan='$_POST[tahun]' ORDER BY mahasiswa";
+						// end tes code //
+
 						while ($r = $q->fetch_assoc()) {
 							// $nilai_max = $r["nilai_max"];
 					?>
