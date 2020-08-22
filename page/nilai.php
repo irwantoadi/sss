@@ -6,7 +6,7 @@ if ($update) {
 	// $sql_string = "SELECT * FROM nilai JOIN penilaian USING(kd_kriteria) WHERE kd_nilai='$_GET[key]'";
 	$sql_string = "SELECT * FROM nilai JOIN pembobotan USING(kd_kriteria) WHERE kd_nilai='$_GET[key]' AND nilai.nilai = pembobotan.bobot_nilai";
 	$sql = $connection->query($sql_string);
-	echo $sql_string."<br>";
+	// echo $sql_string."<br>";
 	$row = $sql->fetch_assoc();
 	// echo $row["kd_penilaian"];
 }
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" AND isset($_POST["save"])) {
 		}
 	}
 
-	echo $sql;
+	// echo $sql;
   if (!$err AND $connection->query($sql)) {
 		echo alert("Berhasil!", "?page=nilai");
 		// echo 'alert("Berhasil!", "?page=nilai")';
@@ -116,7 +116,7 @@ if (isset($_GET['action']) AND $_GET['action'] == 'delete') {
 									<option>---</option>
 									<?php $sql = $connection->query("SELECT * FROM pembobotan WHERE kd_kriteria=$r[kd_kriteria]"); while ($data = $sql->fetch_assoc()): ?>
 									<option 
-										value="<?=$data["bobot"]?>" 
+										value="<?=$data["bobot_nilai"]?>" 
 										class="<?=$data["kd_kriteria"]?>"
 										<?= (!$update) ? "" : (($row["kd_pembobotan"] != $data["kd_pembobotan"]) ? "" : ' selected="selected"') ?>><?=$data["keterangan"];
 										?>	
